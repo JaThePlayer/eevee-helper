@@ -16,13 +16,19 @@ namespace Celeste.Mod.EeveeHelper.Entities {
         private string moveFlag;
         private bool notFlag;
         private bool startOnTouch;
+        private bool stopAtNode;
+        private bool stopAtEnd;
+        private bool once;
         private bool disableBoost;
-        private bool liftSpeedFix;
+        private float startDelay;
 
         public EntityContainerMover _Container;
         public SMWTrackMover Mover;
 
         private bool started;
+        private bool waitingForRestart;
+        private bool movedOnce;
+        private float startTimer = 0f;
 
         public SMWTrackContainer(EntityData data, Vector2 offset) : base(data.Position + offset) {
             Collider = new Hitbox(data.Width, data.Height);
@@ -38,19 +44,31 @@ namespace Celeste.Mod.EeveeHelper.Entities {
             }
             startOnTouch = data.Bool("startOnTouch");
             disableBoost = data.Bool("disableBoost");
+            stopAtNode = data.Bool("stopAtNode");
+            stopAtEnd = data.Bool("stopAtEnd");
+            once = data.Bool("moveOnce");
+            startDelay = data.Float("startDelay");
 
             Add(_Container = new EntityContainerMover(data) {
                 DefaultIgnored = e => e.Get<SMWTrackMover>() != null || e is SMWTrack
             });
 
+            Add(Mover = new SMWTrackMover(data) {
+                StopAtNode = stopAtNode,
+                StopAtEnd = stopAtEnd,
 
-            Add(Mover = new SMWTrackMover {
-                Direction = data.Enum<Facings>("direction"),
-                MoveSpeed = data.Float("moveSpeed"),
-                Gravity = data.Float("gravity"),
-                FallSpeed = data.Float("fallSpeed"),
                 GetPosition = () => Center,
-                SetPosition = (pos, move) => _Container.DoMoveAction(() => Center = pos, (h, delta) => EeveeUtils.GetTrackBoost(move, disableBoost))
+                SetPosition = (pos, move) => _Container.DoMoveAction(() => Center = pos, (h, delta) => EeveeUtils.GetTrackBoost(move, disableBoost)),
+
+                OnStop = (mover, end) => {
+                    if (startOnTouch) {
+                        started = false;
+                    }
+                    waitingForRestart = true;
+                    if (end) {
+                        movedOnce = true;
+                    }
+                }
             });
 
             if (startOnTouch) {
@@ -61,13 +79,42 @@ namespace Celeste.Mod.EeveeHelper.Entities {
             }
         }
 
+        public override void Awake(Scene scene) {
+            base.Awake(scene);
+
+            // If the platform is active on spawn, skip the start delay
+            if (!startOnTouch && CheckStarted())
+                startTimer = startDelay;
+        }
+
         public override void Update() {
-            if (!started && startOnTouch)
-                started = PlayerCheck();
-            Mover.Activated = started && (string.IsNullOrEmpty(moveFlag) || SceneAs<Level>().Session.GetFlag(moveFlag) != notFlag);
+            if (!movedOnce || !once) {
+                var active = CheckStarted();
+
+                if (active)
+                    startTimer = Calc.Approach(startTimer, startDelay, Engine.DeltaTime);
+                else
+                    startTimer = 0f;
+
+                Mover.Activated = active && startTimer >= startDelay;
+            }
+
             base.Update();
+
             if (Top > SceneAs<Level>().Bounds.Bottom)
                 RemoveSelf();
+        }
+
+        private bool CheckStarted() {
+            var flagActive = (string.IsNullOrEmpty(moveFlag) || SceneAs<Level>().Session.GetFlag(moveFlag) != notFlag);
+
+            if (waitingForRestart && (!flagActive || (startOnTouch && !PlayerCheck())))
+                waitingForRestart = false;
+
+            if (!started && startOnTouch && !waitingForRestart)
+                started = PlayerCheck();
+
+            return started && flagActive;
         }
 
         private bool PlayerCheck() {
