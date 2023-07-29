@@ -63,6 +63,7 @@ entities.EeveeHelper/FlagToggleModifier.attributes.description.forceStandardBeha
 entities.EeveeHelper/CollidableModifier.placements.name.default=Collidable Modifier
 entities.EeveeHelper/CollidableModifier.placements.name.noCollide=Collidable Modifier (No Collide)
 entities.EeveeHelper/CollidableModifier.placements.name.solidify=Collidable Modifier (Solidify)
+entities.EeveeHelper/CollidableModifier.placements.name.hazardous=Collidable Modifier (Hazardous)
 entities.EeveeHelper/CollidableModifier.attributes.description.containMode=Determines how the container contains entities.\n - RoomStart: Whitelisted entities inside the container at the start of the room are the only entities that will be contained.\n - FlagChanged: Entities are re-contained whenever the flag is enabled. This means you can delay containment with a flag to contain something like the Player.\n - Always: Whitelisted entities inside the container are always affected, and entities outside the container are no longer affected.
 entities.EeveeHelper/CollidableModifier.attributes.description.containFlag=The container will only be enabled when the flag is active. Empty for always enabled. (Prefix flag name with "!" to invert, e.g. !myFlag)
 entities.EeveeHelper/CollidableModifier.attributes.description.whitelist=Comma-separated list of entity class names to contain (e.g. Booster,CrystalStaticSpinner,etc). Contains most entities if empty.
@@ -144,13 +145,12 @@ entities.EeveeHelper/FlagToggleModifier.attributes.description.toggleVisible=Con
 entities.EeveeHelper/FlagToggleModifier.attributes.description.toggleCollidable=Controls whether toggling will affect if entities are collidable.
 
 # Collidable Modifier
-entities.EeveeHelper/CollidableModifier.attributes.description.noCollide=Disables collision for the modified entities.
-entities.EeveeHelper/CollidableModifier.attributes.description.solidify=Makes all modified entities solid and climbable.
+entities.EeveeHelper/CollidableModifier.attributes.description.collisionMode=The type of collision the modified entities should be given.
+entities.EeveeHelper/CollidableModifier.attributes.description.keepBaseCollision=Keeps default collision behavour for the modified entities. When disabled, all modified entities are made non-collidable.
 
 # Global Modifier
 entities.EeveeHelper/GlobalModifier.placements.name.default=Global Modifier
 entities.EeveeHelper/GlobalModifier.attributes.description.whitelist=Comma-separated list of ahorn entity names / entity IDs to contain (e.g. glider,EeveeHelper/PatientBooster,88,etc). Contains all entities if empty.
-entities.EeveeHelper/GlobalModifier.attributes.description.
 
 
 # SMW Track

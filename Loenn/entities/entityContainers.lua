@@ -280,8 +280,8 @@ local collidableModifier = {
                 containMode = "RoomStart",
                 containFlag = "",
                 forceStandardBehavior = false,
-                noCollide = false,
-                solidify = false,
+                collisionMode = "NoCollide",
+                keepBaseCollision = false
             }
         },
         {
@@ -289,8 +289,7 @@ local collidableModifier = {
             data = {
                 width = 8,
                 height = 8,
-                noCollide = true,
-                solidify = false
+                collisionMode = "NoCollide"
             }
         },
         {
@@ -298,9 +297,23 @@ local collidableModifier = {
             data = {
                 width = 8,
                 height = 8,
-                noCollide = false,
-                solidify = true
+                collisionMode = "Solid"
             }
+        },
+        {
+            name = "hazardous",
+            data = {
+                width = 8,
+                height = 8,
+                collisionMode = "Hazardous"
+            }
+        }
+    },
+
+    fieldInformation = {
+        collisionMode = {
+            options = { "NoCollide", "Solid", "Hazardous" },
+            editable = false,
         }
     }
 }
